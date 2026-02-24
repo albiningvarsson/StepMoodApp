@@ -31,7 +31,12 @@ public class AppDbContext : DbContext
             .HasOne(d => d.User)
             .WithMany(u => u.Days)
             .HasForeignKey(d => d.UserId);
-    
+
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.Username)
+            .IsUnique();
+
+        modelBuilder.Entity<DayEntry>().OwnsOne(d => d.Weather);
 
         
     }

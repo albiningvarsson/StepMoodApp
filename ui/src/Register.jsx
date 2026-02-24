@@ -1,5 +1,4 @@
 import { useState } from "react";
-// 1. Vi importerar authService från din api.js-fil
 import { authService } from "./api"; 
 
 export default function Register({ onRegisterSuccess, onSwitchToLogin }) {
@@ -11,21 +10,11 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
-
     try {
-      // 2. Istället för en krånglig fetch, använder vi tjänsten vi skapade
-      // Denna kommer automatiskt använda rätt URL från din api.js
       await authService.register(username, password);
-
-      setMessage("Konto skapat! Du kan nu logga in.");
-      
-      // Vänta 2 sekunder så användaren hinner se meddelandet, sen byt vy
+      setMessage("Konto skapat! Skickar dig till loggin...");
       setTimeout(() => onRegisterSuccess(), 2000); 
-
     } catch (err) {
-      // Om backenden skickar ett fel (t.ex. "Användaren finns redan") 
-      // så hamnar det här tack vare vår handleResponse i api.js
       setMessage(`Fel: ${err.message}`);
     } finally {
       setLoading(false);
@@ -33,44 +22,59 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }) {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 400, margin: "0 auto", textAlign: "center" }}>
-      <h2>Skapa konto</h2>
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: 10 }}>
-        <input 
-          type="text" 
-          placeholder="Välj användarnamn" 
-          value={username} 
-          onChange={e => setUsername(e.target.value)}
-          required 
-        />
-        <input 
-          type="password" 
-          placeholder="Välj lösenord" 
-          value={password} 
-          onChange={e => setPassword(e.target.value)}
-          required 
-        />
-        <button type="submit" disabled={loading}>
-          {loading ? "Skapar konto..." : "Registrera mig"}
-        </button>
-      </form>
-      
-      {message && (
-        <p style={{ marginTop: 15, color: message.includes("Fel") ? "red" : "green" }}>
-          {message}
-        </p>
-      )}
-      
-      <p style={{ marginTop: 20 }}>
-        Har du redan ett konto? <br />
-        <button 
-          type="button" // Viktigt så den inte submittar formuläret
-          onClick={onSwitchToLogin} 
-          style={{ background: "none", border: "none", color: "blue", cursor: "pointer", textDecoration: "underline" }}
-        >
-          Logga in här
-        </button>
-      </p>
+    <div className="auth-container">
+      <div className="card auth-card">
+        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+          <h1 className="logo">StepMood</h1>
+          <p style={{ color: "var(--muted)", marginTop: "5px" }}>Skapa ett nytt konto</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="form-layout">
+          <div className="form-group">
+            <label>Välj användarnamn</label>
+            <input 
+              type="text" 
+              value={username} 
+              onChange={e => setUsername(e.target.value)} 
+              placeholder="Ditt namn"
+              required 
+            />
+          </div>
+          <div className="form-group">
+            <label>Välj lösenord</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              placeholder="Minst 6 tecken"
+              required 
+            />
+          </div>
+          <button type="submit" className="primary-btn" disabled={loading}>
+            {loading ? "Skapar konto..." : "Gå med nu"}
+          </button>
+        </form>
+
+        {message && (
+          <div className="error-banner" style={{ 
+            marginTop: "20px", 
+            background: message.includes("skapat") ? "#ecfdf5" : "#fee2e2",
+            color: message.includes("skapat") ? "#047857" : "#b91c1c",
+            borderColor: message.includes("skapat") ? "#10b981" : "#f87171"
+          }}>
+            {message}
+          </div>
+        )}
+
+        <div style={{ marginTop: "25px", textAlign: "center", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
+          <p style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
+            Har du redan ett konto? {" "}
+            <button type="button" className="btn-logout" style={{ border: "none", color: "var(--primary)", padding: "0" }} onClick={onSwitchToLogin}>
+              Logga in
+            </button>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

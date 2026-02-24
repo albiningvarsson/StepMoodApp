@@ -27,4 +27,8 @@ public class DayEntry
 
     [JsonIgnore]
     public User? User { get; set; } // Gör att vi kan navigera till användaren i koden
+
+
+    // VÄDERINFO
+    public WeatherInfo? Weather { get; set; }
 }

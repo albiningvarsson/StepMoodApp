@@ -29,6 +29,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 4. REPOSITORY (Det nya!)
 // Vi mappar interfacet mot klassen. "Scoped" betyder att en ny skapas per request.
 builder.Services.AddScoped<IDayRepository, SqliteDayRepository>();
+builder.Services.AddScoped<IUserRepository, SqliteUserRepository>();
+
 
 // 5. EXCEPTION HANDLING (Det nya!)
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

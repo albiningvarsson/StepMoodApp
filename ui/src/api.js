@@ -37,27 +37,36 @@ export const authService = {
   }
 };
 
-// DIN BEFINTLIGA TJÄNST FÖR DAGAR
 export const dayService = {
   async getAll(userId) {
     if (!userId) return [];
-    // Denna var redan rätt!
     const res = await fetch(`${API_URL}/days?userId=${userId}`);
     return handleResponse(res);
   },
 
-  async create(payload) {
-    // VIKTIGT: Vi måste lägga till ?userId= här också för att matcha backenden
-    const res = await fetch(`${API_URL}/days?userId=${payload.userId}`, {
+  async create(userId, dayData) {
+    // dayData innehåller: { date, steps, mood, note }
+    // userId skickas som en query parameter
+    const res = await fetch(`${API_URL}/days?userId=${userId}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(dayData), // Här skickas nu bara det som finns i DayCreateDto!
+    });
+    return handleResponse(res);
+  },
+
+  async update(userId, date, dayData) {
+    // Matchar din: app.MapPut("/days/{date}", ...)
+    const res = await fetch(`${API_URL}/days/${date}?userId=${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dayData),
     });
     return handleResponse(res);
   },
 
   async delete(date, userId) {
-    // VIKTIGT: Backenden kräver både datum i URL:en och userId i query-strängen
+    console.log("Försöker radera:", `${API_URL}/days/${date}?userId=${userId}`); // <--- LÄGG TILL DENNA
     const res = await fetch(`${API_URL}/days/${date}?userId=${userId}`, {
       method: "DELETE"
     });
