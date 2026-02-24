@@ -1,0 +1,6 @@
+@StepMoodApp_HostAddress = http://localhost:5186
+
+GET {{StepMoodApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
