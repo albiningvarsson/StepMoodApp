@@ -1,4 +1,5 @@
 StepMood API
+
 Ett backend-projekt byggt med .NET 8 för att logga dagliga aktiviteter och humör. Fokus ligger på ren kod, tydlig arkitektur och säkerhet.
 
 Tekniker
