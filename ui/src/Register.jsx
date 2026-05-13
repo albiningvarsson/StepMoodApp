@@ -24,9 +24,9 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }) {
   return (
     <div className="auth-container">
       <div className="card auth-card">
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+        <div className="auth-title-block">
           <h1 className="logo">StepMood</h1>
-          <p style={{ color: "var(--muted)", marginTop: "5px" }}>Skapa ett nytt konto</p>
+          <p className="auth-subtitle">Skapa ett nytt konto</p>
         </div>
 
         <form onSubmit={handleSubmit} className="form-layout">
@@ -56,20 +56,15 @@ export default function Register({ onRegisterSuccess, onSwitchToLogin }) {
         </form>
 
         {message && (
-          <div className="error-banner" style={{ 
-            marginTop: "20px", 
-            background: message.includes("skapat") ? "#ecfdf5" : "#fee2e2",
-            color: message.includes("skapat") ? "#047857" : "#b91c1c",
-            borderColor: message.includes("skapat") ? "#10b981" : "#f87171"
-          }}>
+          <div className={`error-banner auth-message ${message.includes("skapat") ? "success-banner" : ""}`}>
             {message}
           </div>
         )}
 
-        <div style={{ marginTop: "25px", textAlign: "center", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
-          <p style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
+        <div className="auth-footer">
+          <p>
             Har du redan ett konto? {" "}
-            <button type="button" className="btn-logout" style={{ border: "none", color: "var(--primary)", padding: "0" }} onClick={onSwitchToLogin}>
+            <button type="button" className="link-btn" onClick={onSwitchToLogin}>
               Logga in
             </button>
           </p>

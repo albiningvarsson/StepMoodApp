@@ -25,9 +25,9 @@ export default function Login({ onLoginSuccess, onSwitchToRegister }) {
   return (
     <div className="auth-container">
       <div className="card auth-card">
-        <div style={{ textAlign: "center", marginBottom: "30px" }}>
+        <div className="auth-title-block">
           <h1 className="logo">StepMood</h1>
-          <p style={{ color: "var(--muted)", marginTop: "5px" }}>Logga in på ditt konto</p>
+          <p className="auth-subtitle">Logga in på ditt konto</p>
         </div>
 
         <form onSubmit={handleSubmit} className="form-layout">
@@ -56,12 +56,12 @@ export default function Login({ onLoginSuccess, onSwitchToRegister }) {
           </button>
         </form>
 
-        {message && <div className="error-banner" style={{ marginTop: "20px" }}>{message}</div>}
+        {message && <div className="error-banner auth-message">{message}</div>}
 
-        <div style={{ marginTop: "25px", textAlign: "center", borderTop: "1px solid var(--border)", paddingTop: "20px" }}>
-          <p style={{ fontSize: "0.9rem", color: "var(--muted)" }}>
+        <div className="auth-footer">
+          <p>
             Inget konto? {" "}
-            <button type="button" className="btn-logout" style={{ border: "none", color: "var(--primary)", padding: "0" }} onClick={onSwitchToRegister}>
+            <button type="button" className="link-btn" onClick={onSwitchToRegister}>
               Skapa konto
             </button>
           </p>

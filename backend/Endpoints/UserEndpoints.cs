@@ -2,6 +2,7 @@ using StepMoodApp.Models;
 using StepMoodApp.Data;
 using BCrypt.Net;
 using StepMoodApp.DTOs;
+using StepMoodApp.Services;
 
 namespace StepMoodApp.Endpoints;
 
@@ -32,7 +33,7 @@ public static class UserEndpoints
         });
 
         // LOGIN
-        app.MapPost("/login", async (UserLoginDto dto, IUserRepository repo) =>
+        app.MapPost("/login", async (UserLoginDto dto, IUserRepository repo, JwtTokenService tokenService) =>
         {
             // 1. Hitta användaren via repot
             var user = await repo.GetByUsernameAsync(dto.Username);
@@ -50,8 +51,13 @@ public static class UserEndpoints
                 return Results.Unauthorized(); // Fel lösenord
             }
 
-            // 3. Returnera ID och användarnamn
-            return Results.Ok(new { id = user.Id, username = user.Username });
+            var token = tokenService.GenerateToken(user);
+
+            return Results.Ok(new
+            {
+                token,
+                user = new { id = user.Id, username = user.Username }
+            });
         });
     }
 }

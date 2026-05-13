@@ -1,6 +1,7 @@
 using StepMoodApp.Data;
 using StepMoodApp.Models;
 using StepMoodApp.DTOs; // Glöm inte denna!
+using System.Security.Claims;
 
 namespace StepMoodApp.Endpoints;
 
@@ -9,8 +10,9 @@ static class DayEndpoints
     public static void MapDayEndpoints(this IEndpointRouteBuilder app)
     {
         // GET /days - Returnerar en lista av DayResponseDto
-        app.MapGet("/days", async (int userId, IDayRepository repo) =>
+        app.MapGet("/days", async (ClaimsPrincipal user, IDayRepository repo) =>
         {
+            if (!TryGetUserId(user, out var userId, out var authError)) return authError;
             var days = await repo.GetAllAsync(userId);
             
             // Här mappar vi om från DayEntry till DayResponseDto
@@ -22,11 +24,13 @@ static class DayEndpoints
                 d.Weather));
     
             return Results.Ok(response);
-        });
+        })
+        .RequireAuthorization();
         
         // POST /days - Tar emot DayCreateDto
-        app.MapPost("/days", async (DayCreateDto dto, int userId, IDayRepository repo) =>
+        app.MapPost("/days", async (ClaimsPrincipal user, DayCreateDto dto, IDayRepository repo) =>
         {
+            if (!TryGetUserId(user, out var userId, out var authError)) return authError;
             // Validering
             var today = DateOnly.FromDateTime(DateTime.Today);
             if (dto.Date > today) return Results.BadRequest("Date cannot be in the future");
@@ -51,11 +55,13 @@ static class DayEndpoints
             // Vi returnerar en ResponseDto även här för att vara konsekventa
             var response = new DayResponseDto(newEntry.Date, newEntry.Steps, newEntry.Mood, newEntry.Note, newEntry.Weather);
             return Results.Created($"/days/{newEntry.Date}", response);
-        });
+        })
+        .RequireAuthorization();
 
         // PUT /days/{date} - Använder också DayCreateDto (eller en egen UpdateDto)
-        app.MapPut("/days/{date}", async (string date, DayCreateDto dto, int userId, IDayRepository repo) =>
+        app.MapPut("/days/{date}", async (ClaimsPrincipal user, string date, DayCreateDto dto, IDayRepository repo) =>
         {
+            if (!TryGetUserId(user, out var userId, out var authError)) return authError;
             if (!TryParseDate(date, out var parsedDate, out var error)) return error;
 
             var existing = await repo.GetByDateAsync(parsedDate, userId);
@@ -71,11 +77,13 @@ static class DayEndpoints
 
             await repo.UpdateAsync(existing);
             return Results.Ok(new DayResponseDto(existing.Date, existing.Steps, existing.Mood, existing.Note, existing.Weather));
-        });
+        })
+        .RequireAuthorization();
 
         // DELETE /days/{date}
-        app.MapDelete("/days/{date}", async (string date, int userId, IDayRepository repo) =>
+        app.MapDelete("/days/{date}", async (ClaimsPrincipal user, string date, IDayRepository repo) =>
         {
+            if (!TryGetUserId(user, out var userId, out var authError)) return authError;
             // 1. Kolla så datumet är giltigt
             if (!TryParseDate(date, out var parsedDate, out var error)) 
             return error;
@@ -90,6 +98,7 @@ static class DayEndpoints
             return Results.NoContent(); // 204 betyder "Lyckades, men finns inget mer att skicka"
         })
         .WithName("DeleteDay")
+        .RequireAuthorization()
         .WithOpenApi();
     }
 
@@ -102,5 +111,18 @@ static class DayEndpoints
         }
         error = null!;
         return true;
+    }
+
+    static bool TryGetUserId(ClaimsPrincipal user, out int userId, out IResult error)
+    {
+        var userIdClaim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (int.TryParse(userIdClaim, out userId))
+        {
+            error = null!;
+            return true;
+        }
+
+        error = Results.Unauthorized();
+        return false;
     }
 }
